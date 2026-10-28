@@ -443,7 +443,17 @@ const STEPS=['MENUNGGU_PEMBAYARAN','DIBAYAR_QC_DIPROSES','DIKIRIM','SELESAI'],ST
 const items=()=>S.cart.map(i=>products.find(p=>p.id===i)).filter(Boolean),sub=()=>items().reduce((a,p)=>a+p.price,0);
 const fmt=ms=>{ms=Math.max(0,ms/1000|0);return String(ms/60|0).padStart(2,'0')+':'+String(ms%60).padStart(2,'0')};
 const sheet=o=>$('sheet').classList.toggle('hidden',!o);
-function toast(m,i='check-circle-2'){const t=document.createElement('div');t.className='toast glass';t.innerHTML=`<i data-lucide="${i}" class="w-4 h-4 text-brand"></i>${m}`;$('toasts').appendChild(t);lucide.createIcons();setTimeout(()=>t.remove(),2600)}
+function toast(m,i='check-circle-2'){
+  /* Security: render pesan sebagai teks, bukan HTML, agar input tidak menjadi markup aktif. */
+  const allowedIcons=new Set(['check-circle-2','clock','alert-triangle','shield-check','info','x-circle','check','package','shopping-bag']);
+  const iconName=allowedIcons.has(i)?i:'info';
+  const t=document.createElement('div');t.className='toast glass';
+  const icon=document.createElement('i');icon.setAttribute('data-lucide',iconName);icon.className='w-4 h-4 text-brand';
+  const message=document.createElement('span');message.textContent=String(m==null?'':m).slice(0,500);
+  t.append(icon,message);$('toasts').appendChild(t);
+  if(window.lucide&&typeof lucide.createIcons==='function')lucide.createIcons();
+  window.setTimeout(()=>t.remove(),2600)
+}
 function copy(t,m){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(m)).catch(()=>toast('Salin manual ya: '+t,'info'))}
 function upd(){const n=S.cart.length;['cc','cc2'].forEach(i=>{const e=$(i);e.textContent=n;e.style.display=n?'grid':'none'})}
 function go(p,x=null){page=p;param=x;render();scrollTo({top:0,behavior:'smooth'})}
@@ -797,5 +807,88 @@ window.TRF={analytics:{track:track,config:CFG},backup:{export:exportBackup,impor
 pageView();
 })();
 </script>
+
+<script id="trf-security-hardening">
+/*
+ * Thrifterfav Security Shield — lapisan hardening sisi browser untuk demonstrasi.
+ * Catatan: ini bukan pengganti kontrol keamanan server, autentikasi, atau validasi pembayaran.
+ */
+(function () {
+  'use strict';
+  var MAX_TEXT = 5000;
+  var dangerousScheme = /^(?:javascript|vbscript|data):/i;
+
+  function hardenElement(root) {
+    if (!root || root.nodeType !== 1) return;
+    var links = [];
+    if (root.matches && root.matches('a[href]')) links.push(root);
+    if (root.querySelectorAll) links = links.concat(Array.prototype.slice.call(root.querySelectorAll('a[href]')));
+    links.forEach(function (a) {
+      var raw = (a.getAttribute('href') || '').trim();
+      if (dangerousScheme.test(raw) || /[\u0000-\u001f\u007f]/.test(raw)) {
+        a.removeAttribute('href');
+        return;
+      }
+      if (a.target === '_blank') {
+        var rel = (a.getAttribute('rel') || '').split(/\s+/).filter(Boolean);
+        ['noopener', 'noreferrer'].forEach(function (v) {
+          if (rel.indexOf(v) === -1) rel.push(v);
+        });
+        a.setAttribute('rel', rel.join(' '));
+      }
+    });
+
+    var frames = [];
+    if (root.matches && root.matches('iframe')) frames.push(root);
+    if (root.querySelectorAll) frames = frames.concat(Array.prototype.slice.call(root.querySelectorAll('iframe')));
+    frames.forEach(function (frame) {
+      if (!frame.hasAttribute('referrerpolicy')) frame.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      if (!frame.hasAttribute('loading')) frame.setAttribute('loading', 'lazy');
+    });
+
+    if (root.matches && root.matches('input[type="text"], input[type="email"], input[type="tel"], textarea')) {
+      if (!root.hasAttribute('maxlength')) root.maxLength = MAX_TEXT;
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(function (field) {
+        if (!field.hasAttribute('maxlength')) field.maxLength = MAX_TEXT;
+      });
+    }
+  }
+
+  function start() {
+    hardenElement(document.documentElement);
+    if (!window.MutationObserver || !document.documentElement) return;
+    var observer = new MutationObserver(function (records) {
+      records.forEach(function (record) {
+        record.addedNodes.forEach(function (node) {
+          if (node.nodeType === 1) hardenElement(node);
+        });
+      });
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+
+  Object.defineProperty(window, '__TRF_SECURITY_LAYER__', {
+    value: Object.freeze({
+      version: '1.0.0',
+      scope: 'client-side-hardening',
+      linkGuard: true,
+      iframeReferrerPolicy: true,
+      inputLengthLimit: MAX_TEXT
+    }),
+    writable: false,
+    configurable: false,
+    enumerable: false
+  });
+})();
+</script>
+
 </body>
 </html>
