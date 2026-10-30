@@ -125,6 +125,141 @@ details summary{cursor:pointer;list-style:none;font-weight:600;display:flex;just
 /* tambahan: muat nav desktop untuk 2 menu baru */
 @media(min-width:1024px){#nv .nl{padding:8px 9px}}
 @media(min-width:1024px) and (max-width:1279px){header label.w-44{display:none}}
+
+/* ===== Mobile navigation: cegah menu desktop terpotong ===== */
+@media(max-width:1023px){
+  header #nv{
+    display:flex !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    scrollbar-width:none !important;
+    -webkit-overflow-scrolling:touch;
+  }
+  header #nv::-webkit-scrollbar{display:none}
+  header #nv .nl{flex:0 0 auto;white-space:nowrap}
+  #mobileBottomNav{display:block !important}
+  header{width:auto;max-width:none}
+  header > .glass{min-width:0}
+}
+
+/* ===== Bottom navigation: glass lebih ringan untuk Android ===== */
+@media(max-width:767px){
+  #mobileBottomNav > .glass{
+    background:rgba(255,255,255,.94) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    box-shadow:0 5px 18px rgba(60,40,80,.10),inset 0 1px 0 rgba(255,255,255,.95) !important;
+    border:1px solid rgba(255,255,255,.9) !important;
+    transform:translateZ(0);
+  }
+  #mobileBottomNav #tbi{
+    transition:transform .22s ease-out,width .22s ease-out,opacity .15s ease-out !important;
+    box-shadow:0 3px 10px rgba(155,27,48,.10),inset 0 1px 0 #fff !important;
+  }
+  #mobileBottomNav #tbi.drag{
+    transition:transform .16s ease-out,width .16s ease-out,opacity .12s ease-out !important;
+    scale:1.04 1.03 !important;
+    box-shadow:0 4px 12px rgba(155,27,48,.13),inset 0 1px 0 #fff !important;
+  }
+}
+
+@media(max-width:767px){
+  header > .glass{gap:6px}
+  header > .glass > button:first-child{flex:0 0 auto;white-space:nowrap;font-size:18px}
+  header #nv .nl{font-size:11px;padding:7px 8px}
+  header > .glass > div:last-child{flex:0 0 auto;gap:5px}
+  header > .glass > div:last-child > button[onclick*="go('cart')"]{padding:9px 11px !important}
+}
+@media(max-width:767px){
+  .kids-preorder{
+    min-height:38px !important;
+    padding:9px 10px !important;
+    font-size:12px !important;
+    line-height:1.2 !important;
+    gap:5px !important;
+    white-space:nowrap;
+  }
+  .kids-preorder i{width:14px !important;height:14px !important;flex:0 0 14px}
+}
+
+/* ===== Mobile navigation: preserve original pill shape; native horizontal swipe ===== */
+@media (max-width: 1023px) {
+  header { overflow: visible !important; }
+  header > .glass {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y !important;
+    padding-right: 14px !important;
+  }
+  header > .glass::-webkit-scrollbar { display: none !important; }
+  header > .glass > button:first-child {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+  header #nv {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    overflow: visible !important;
+    touch-action: auto !important;
+    user-select: none;
+  }
+  header #nv .nl { flex: 0 0 auto !important; white-space: nowrap !important; }
+  header > .glass > div:last-child {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+  }
+  header label {
+    display: flex !important;
+    flex: 0 0 150px !important;
+    width: 150px !important;
+    min-width: 150px !important;
+  }
+  header button[aria-label="Wishlist"],
+  header button[aria-label="Pesanan"] {
+    display: grid !important;
+    flex: 0 0 34px !important;
+  }
+}
+@media (max-width: 767px) {
+  /* Keep the existing bottom bar and active pill design; disable drag capture on touch. */
+  #tb { touch-action: pan-y !important; }
+  #mobileBottomNav > .glass {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  /* Avoid costly animated, heavily blurred background layers on mobile GPUs. */
+  .blobs i {
+    animation: none !important;
+    filter: none !important;
+    opacity: .22 !important;
+  }
+  .glass {
+    -webkit-backdrop-filter: blur(8px) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  header > .glass,
+  #mobileBottomNav > .glass {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
 </style>
 <script>
 /* Thrifterfav · backup recovery: pulihkan data keranjang/wishlist/pesanan bila data utama rusak atau hilang */
@@ -165,7 +300,7 @@ for(var i=sn.length-1;i>=0;i--){var d=sn[i]&&sn[i].data;if(d&&typeof d==='object
 
 <a href="https://wa.me/6281932035550" target="_blank" class="hidden md:grid fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full btn-w place-items-center shadow-2xl hover:scale-110 transition" aria-label="WhatsApp Customer Service"><i data-lucide="message-circle" class="w-6 h-6"></i></a>
 
-<nav class="md:hidden fixed bottom-3 inset-x-3 z-40"><div class="glass !rounded-[26px] p-1.5"><div id="tb"><i id="tbi"></i>
+<nav id="mobileBottomNav" class="md:hidden fixed bottom-3 inset-x-3 z-40"><div class="glass !rounded-[26px] p-1.5"><div id="tb"><i id="tbi"></i>
  <button data-t="home" onclick="go('home')" class="tab"><i data-lucide="house" class="w-5 h-5"></i>Home</button>
  <button data-t="catalog" onclick="go('catalog')" class="tab"><i data-lucide="layout-grid" class="w-5 h-5"></i>Katalog</button>
  <button data-t="cart" onclick="go('cart')" class="tab"><i data-lucide="shopping-bag" class="w-5 h-5"></i>Keranjang<span id="cc2" class="badge !grid"></span></button>
@@ -552,8 +687,8 @@ const tb=$('tb'),tbi=$('tbi'),tabs=()=>[...tb.querySelectorAll('.tab')];
 function tbSync(){const a=tb.querySelector('.tab.on');if(!a){tbi.style.opacity=0;return}tbi.style.opacity=1;tbi.style.width=a.offsetWidth+'px';tbi.style.transform=`translateX(${a.offsetLeft}px)`}
 const tabAt=x=>tabs().find(b=>{const r=b.getBoundingClientRect();return x>=r.left&&x<=r.right});
 let dg=null,moved=false,hvT=null;
-tb.addEventListener('pointerdown',e=>{dg={x:e.clientX};moved=false});
-tb.addEventListener('pointermove',e=>{if(!dg)return;if(!moved){if(Math.abs(e.clientX-dg.x)<6)return;moved=true;try{tb.setPointerCapture(e.pointerId)}catch(_){}tbi.classList.add('drag');tbi.style.opacity=1;tbi.style.width=tabs()[0].offsetWidth+'px'}
+tb.addEventListener('pointerdown',e=>{if(window.matchMedia('(max-width:767px)').matches)return;dg={x:e.clientX};moved=false});
+tb.addEventListener('pointermove',e=>{if(window.matchMedia('(max-width:767px)').matches||!dg)return;if(!moved){if(Math.abs(e.clientX-dg.x)<6)return;moved=true;try{tb.setPointerCapture(e.pointerId)}catch(_){}tbi.classList.add('drag');tbi.style.opacity=1;tbi.style.width=tabs()[0].offsetWidth+'px'}
  const r=tb.getBoundingClientRect(),w=tbi.offsetWidth,l=Math.max(0,Math.min(tb.offsetWidth-w,e.clientX-r.left-w/2));tbi.style.transform=`translateX(${l}px)`;
  const h=tabAt(e.clientX);if(h!==hvT){hvT=h;tabs().forEach(b=>b.classList.toggle('hv',b===h));if(navigator.vibrate)navigator.vibrate(6)}});
 const tbEnd=(e,ok)=>{if(!dg)return;const was=moved;dg=null;moved=false;tbi.classList.remove('drag');tabs().forEach(b=>b.classList.remove('hv'));hvT=null;if(!was)return;const t=ok&&tabAt(e.clientX);tbSync();if(t)t.click();window._sup=1;setTimeout(()=>window._sup=0,80)};
@@ -568,8 +703,8 @@ function nvSync(){const a=nv.querySelector('.nl.on');if(!a||!a.offsetWidth){nli.
  nli.style.opacity=1;nli.style.width=a.offsetWidth+'px';nli.style.transform=`translateX(${a.offsetLeft}px)`}
 const nlAt=x=>nls().find(b=>{const r=b.getBoundingClientRect();return x>=r.left&&x<=r.right});
 let nd=null,nm=false,nh=null;
-nv.addEventListener('pointerdown',e=>{nd={x:e.clientX};nm=false});
-nv.addEventListener('pointermove',e=>{if(!nd)return;if(!nm){if(Math.abs(e.clientX-nd.x)<6)return;nm=true;try{nv.setPointerCapture(e.pointerId)}catch(_){}nli.classList.add('drag');nli.style.opacity=1}
+nv.addEventListener('pointerdown',e=>{if(window.matchMedia('(max-width:1023px)').matches)return;nd={x:e.clientX};nm=false});
+nv.addEventListener('pointermove',e=>{if(window.matchMedia('(max-width:1023px)').matches||!nd)return;if(!nm){if(Math.abs(e.clientX-nd.x)<6)return;nm=true;try{nv.setPointerCapture(e.pointerId)}catch(_){}nli.classList.add('drag');nli.style.opacity=1}
  const t=nlAt(e.clientX)||nh,r=nv.getBoundingClientRect(),w=t?t.offsetWidth:nli.offsetWidth;if(t)nli.style.width=w+'px';
  const l=Math.max(0,Math.min(nv.offsetWidth-w,e.clientX-r.left-w/2));nli.style.transform=`translateX(${l}px)`;
  if(t!==nh){nh=t;nls().forEach(b=>b.classList.toggle('hv',b===t))}});
@@ -619,7 +754,7 @@ function kidsvemberCards(){
  <div class="flex items-end gap-2 flex-wrap"><span class="text-xl font-extrabold text-brand">${IDR(k.price)}</span><span class="text-xs text-gray-400 line-through pb-0.5">${IDR(k.old)}</span></div>
  <div class="flex gap-2 flex-wrap"><span class="pill bg-emerald-100 text-emerald-800">Condition ${k.cond}</span><span class="pill bg-brand/10 text-brand">Pre-loved · QC</span></div>
  <details class="bg-white/60 rounded-2xl p-3.5 text-xs"><summary class="text-[13px]">Details &amp; measurements<i data-lucide="chevron-down" class="w-4 h-4 transition"></i></summary><div class="space-y-3 mt-3 text-gray-600 leading-relaxed"><p>${k.desc}</p><div class="grid grid-cols-2 gap-2">${k.m.map(x=>`<div class="bg-white/70 rounded-xl p-2.5 text-center"><div class="text-[9px] font-bold text-gray-500 uppercase">${x[0]}</div><div class="font-bold font-mono text-gray-900">${x[1]}</div></div>`).join('')}</div><p><b class="text-gray-800">Fabric:</b> ${k.fabric}</p><p><b class="text-gray-800">Inspection:</b> ${k.insp}</p><p><b class="text-gray-800">Care:</b> ${k.care}</p></div></details>
- <a target="_blank" rel="noopener" href="${kvWA('Hello Thrifterfav, I would like to pre-order: '+k.name+' ('+k.code+') size '+k.size+' - '+IDR(k.price))}" class="btn mt-auto !py-3 w-full"><i data-lucide="baby" class="w-4 h-4"></i>Pre-Order This Item</a></div></article>`}).join('');
+ <a target="_blank" rel="noopener" href="${kvWA('Hello Thrifterfav, I would like to pre-order: '+k.name+' ('+k.code+') size '+k.size+' - '+IDR(k.price))}" class="btn kids-preorder mt-auto !py-3 w-full"><i data-lucide="baby" class="w-4 h-4"></i>Pre-Order This Item</a></div></article>`}).join('');
  return cards;
 }
 
